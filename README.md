@@ -1,4 +1,5 @@
 android-meds-searcher
 =====================
 
-simple android application that allows you to search in database and check the results
+Simple android application that allows you to search in database of meds
+and check their descriptions, side effects etc.

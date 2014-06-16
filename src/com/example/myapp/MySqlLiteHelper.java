@@ -1,7 +1,6 @@
 package com.example.myapp;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.io.*;
+import java.util.*;
 
 public class MySqlLiteHelper extends SQLiteOpenHelper {
     private static String DB_NAME = "meds";//the extension may be .sqlite or .db
@@ -47,8 +47,9 @@ public class MySqlLiteHelper extends SQLiteOpenHelper {
                         null, // g. order by
                         null); // h. limit
 
-        if (cursor != null)
+        if (cursor != null) {
             cursor.moveToFirst();
+        }
 
         Med med = new Med();
         med.setId(Integer.parseInt(cursor.getString(0)));
@@ -59,7 +60,7 @@ public class MySqlLiteHelper extends SQLiteOpenHelper {
         return med;
     }
 
-    public Med getMedByName(String searchTerm) {
+    public ArrayList<Med> getMedsByName(String searchTerm) {
         Cursor cursor =
                 db.query(TABLE_MEDS, // a. table
                         COLUMNS, // b. column names
@@ -69,22 +70,29 @@ public class MySqlLiteHelper extends SQLiteOpenHelper {
                         null, // f. having
                         null, // g. order by
                         null); // h. limit
+
+        ArrayList<Med> meds = new ArrayList<Med>();
         if (cursor.getCount() <= 0) {
             return null;
         }
         else {
-            cursor.moveToFirst();
+            if(cursor.moveToFirst()) {
+                do {
+                    int id = Integer.parseInt(cursor.getString(0));
+                    String title = cursor.getString(1);
+                    Med med = new Med();
+                    med.setId(id);
+                    med.setTitle(title);
+                    meds.add(med);
+                } while(cursor.moveToNext());
+            }
         }
 
-        Med med = new Med();
-        med.setId(Integer.parseInt(cursor.getString(0)));
-        med.setTitle(cursor.getString(1));
-
         //log
-        Log.d("getMed(" + searchTerm + ")", med.toString());
+        Log.d("getMeds(" + searchTerm + ")", "searching");
 
         // 5. return book
-        return med;
+        return meds;
     }
     public void addMed(Med med){
         Log.d("addMed", med.toString());
